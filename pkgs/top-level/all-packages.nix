@@ -9110,6 +9110,10 @@ in
     buildPackages = buildPackages // { stdenv = gcc8Stdenv; };
   });
 
+  go_1_15_shallow_bootstrap = callPackage ../development/compilers/go/1.15-shallow-bootstrap.nix ({
+    inherit (darwin.apple_sdk.frameworks) Security Foundation;
+  });
+
   go = go_1_15;
 
   go-repo-root = callPackage ../development/tools/go-repo-root { };
