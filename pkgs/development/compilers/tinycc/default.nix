@@ -1,26 +1,42 @@
-{ stdenv, lib, fetchFromRepoOrCz, perl, texinfo }:
-with lib;
+{ stdenv, lib
+, fetchFromRepoOrCz
+, perl
+, texinfo
+, which
+, xcbuild
+}:
 
 stdenv.mkDerivation rec {
   pname = "tcc";
-  version = "0.9.27";
-  upstreamVersion = "release_${concatStringsSep "_" (builtins.splitVersion version)}";
+  version = "0.9.27+unstable=2021-10-09";
 
   src = fetchFromRepoOrCz {
     repo = "tinycc";
-    rev = upstreamVersion;
-    sha256 = "12mm1lqywz0akr2yb2axjfbw8lwv57nh395vzsk534riz03ml977";
+    rev = "ca11849ebb88ef4ff87beda46bf5687e22949bd6";
+    sha256 = "135wmiamllid9dm59p9v9n2h3fnxzcjhnh5r15abri8r6v4h6xf6";
   };
 
-  nativeBuildInputs = [ perl texinfo ];
+  nativeBuildInputs = [
+    perl
+    texinfo
+    which
+  ] ++ lib.optionals stdenv.isDarwin [
+    xcbuild
+  ];
 
-  hardeningDisable = [ "fortify" ];
+  hardeningEnable = [ "pie" ];
 
   enableParallelBuilding = true;
 
   postPatch = ''
     substituteInPlace "texi2pod.pl" \
       --replace "/usr/bin/perl" "${perl}/bin/perl"
+
+    substituteInPlace tests/tests2/Makefile \
+      --replace 'SKIP = ' 'SKIP = 106_versym.test 114_bound_signal.test '
+  '' + lib.optionalString stdenv.isDarwin ''
+    substituteInPlace tests/tests2/Makefile \
+      --replace 'SKIP = ' 'SKIP = 106_pthread.test '
   '';
 
   preConfigure = ''
@@ -28,9 +44,9 @@ stdenv.mkDerivation rec {
 
     configureFlagsArray+=("--cc=cc")
     configureFlagsArray+=("--elfinterp=$(< $NIX_CC/nix-support/dynamic-linker)")
-    configureFlagsArray+=("--crtprefix=${getLib stdenv.cc.libc}/lib")
-    configureFlagsArray+=("--sysincludepaths=${getDev stdenv.cc.libc}/include:{B}/include")
-    configureFlagsArray+=("--libpaths=${getLib stdenv.cc.libc}/lib")
+    configureFlagsArray+=("--crtprefix=${lib.getLib stdenv.cc.libc}/lib")
+    configureFlagsArray+=("--sysincludepaths=${lib.getDev stdenv.cc.libc}/include:{B}/include")
+    configureFlagsArray+=("--libpaths=${lib.getLib stdenv.cc.libc}/lib")
   '';
 
   postFixup = ''
@@ -41,15 +57,14 @@ stdenv.mkDerivation rec {
     Libs: -L$out/lib -Wl,--rpath $out/lib -ltcc -ldl
     Cflags: -I$out/include
     EOF
-    install -Dt $out/lib/pkgconfig libtcc.pc -m 444
+    install -D {,$out/lib/pkgconfig/}libtcc.pc
   '';
 
   doCheck = true;
   checkTarget = "test";
 
-  meta = {
+  meta = with lib; {
     description = "Small, fast, and embeddable C compiler and interpreter";
-
     longDescription = ''
       TinyCC (aka TCC) is a small but hyper fast C compiler.  Unlike
       other C compilers, it is meant to be self-sufficient: you do not
@@ -73,11 +88,9 @@ stdenv.mkDerivation rec {
       With libtcc, you can use TCC as a backend for dynamic code
       generation.
     '';
-
     homepage = "http://www.tinycc.org/";
     license = licenses.mit;
-
-    platforms = [ "x86_64-linux" ];
-    maintainers = [ maintainers.joachifm ];
+    platforms = platforms.unix;
+    maintainers = with maintainers; [ joachifm r-burns ];
   };
 }
