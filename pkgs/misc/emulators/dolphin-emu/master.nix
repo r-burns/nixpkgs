@@ -4,9 +4,21 @@
 , libSM, libXdmcp, readline, openal, udev, libevdev, portaudio, curl, alsaLib
 , miniupnpc, enet, mbedtls, soundtouch, sfml
 , vulkan-loader ? null, libpulseaudio ? null
+, minizip
+, pugixml
+, SDL2
+, xxHash
+, lzma
+, zstd
+, bzip2
+, glslang
+, discord-rpc
+, fmt
 
 # - Inputs used for Darwin
-, CoreBluetooth, ForceFeedback, IOKit, OpenGL, libpng, hidapi }:
+, CoreBluetooth, ForceFeedback, IOKit, OpenGL, libpng, hidapi, libtool
+, darwin
+}:
 
 let
   desktopItem = makeDesktopItem {
@@ -21,13 +33,13 @@ let
   };
 in stdenv.mkDerivation rec {
   pname = "dolphin-emu";
-  version = "5.0-11824";
+  version = "5.0-12716";
 
   src = fetchFromGitHub {
     owner = "dolphin-emu";
     repo = "dolphin";
-    rev = "1b97f081b8eff9012132a4124537968bdb0e03e0";
-    sha256 = "1v96hcn34040vjsw83k8p0r0nb8rrdcz80h4ngirxzm36b3l7w6m";
+    rev = "31524288e3b2450eaefff8202c6d26c4ba3f7333";
+    sha256 = "0vv3ahk6zdx2hx5diq4jkhl289wjybqcr4lwinrkfiywb83hcabg";
   };
 
   enableParallelBuilding = true;
@@ -38,12 +50,27 @@ in stdenv.mkDerivation rec {
     curl ffmpeg_3 libao libGLU libGL pcre gettext libpthreadstubs libpulseaudio
     libXrandr libXext libXxf86vm libXinerama libSM readline openal libXdmcp lzo
     portaudio libusb1 libpng hidapi miniupnpc enet mbedtls soundtouch sfml
+    bzip2
     qtbase
+    pugixml
+    minizip
+    xxHash
+    SDL2
+    lzma
+    zstd
+    glslang
+    discord-rpc
+    fmt
   ] ++ lib.optionals stdenv.isLinux [
     bluez udev libevdev alsaLib vulkan-loader
-  ] ++ lib.optionals stdenv.isDarwin [
-    CoreBluetooth OpenGL ForceFeedback IOKit
-  ];
+  ] ++ lib.optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+    Carbon
+    CoreBluetooth
+    ForceFeedback
+    IOKit
+    libtool
+    OpenGL
+  ]);
 
   cmakeFlags = [
     "-DUSE_SHARED_ENET=ON"
@@ -51,12 +78,21 @@ in stdenv.mkDerivation rec {
     "-DDOLPHIN_WC_REVISION=${src.rev}"
     "-DDOLPHIN_WC_DESCRIBE=${version}"
     "-DDOLPHIN_WC_BRANCH=master"
+    "-DXXHASH_FOUND=TRUE"
   ] ++ lib.optionals stdenv.isDarwin [
     "-DOSX_USE_DEFAULT_SEARCH_PATH=True"
   ];
 
   qtWrapperArgs = lib.optionals stdenv.isLinux [
     "--prefix LD_LIBRARY_PATH : ${vulkan-loader}/lib"
+  ];
+
+  patches = [
+    # Use shared libs whenever possible
+    ./master-no-external.patch
+
+    # Don't postprocess for relocation (not needed for nix, causes errors)
+    ./master-no-postprocess.patch
   ];
 
   # - Allow Dolphin to use nix-provided libraries instead of building them
@@ -66,9 +102,12 @@ in stdenv.mkDerivation rec {
     sed -i -e 's,if(NOT APPLE),if(true),g' CMakeLists.txt
     sed -i -e 's,if(LIBUSB_FOUND AND NOT APPLE),if(LIBUSB_FOUND),g' \
       CMakeLists.txt
+
+    substituteInPlace Source/Core/CMakeLists.txt \
+      --replace "add_subdirectory(MacUpdater)" ""
   '';
 
-  postInstall = ''
+  postInstall = lib.optionalString (!stdenv.hostPlatform.isDarwin) ''
     cp -r ${desktopItem}/share/applications $out/share
     ln -sf $out/bin/dolphin-emu $out/bin/dolphin-emu-master
   '';
@@ -81,7 +120,6 @@ in stdenv.mkDerivation rec {
     branch = "master";
     # x86_32 is an unsupported platform.
     # Enable generic build if you really want a JIT-less binary.
-    broken = stdenv.isDarwin;
-    platforms = [ "x86_64-linux" "x86_64-darwin" ];
+    platforms = with platforms; x86_64 ++ aarch64;
   };
 }

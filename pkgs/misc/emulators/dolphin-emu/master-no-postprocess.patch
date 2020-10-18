@@ -1,0 +1,20 @@
+diff --git a/Source/Core/DolphinQt/CMakeLists.txt b/Source/Core/DolphinQt/CMakeLists.txt
+index 9216e9702b..e3088c2f14 100644
+--- a/Source/Core/DolphinQt/CMakeLists.txt
++++ b/Source/Core/DolphinQt/CMakeLists.txt
+@@ -463,14 +463,7 @@ if(APPLE)
+   target_sources(dolphin-emu PRIVATE "${CMAKE_SOURCE_DIR}/Externals/MoltenVK/libvulkan.dylib")
+   set_source_files_properties("${CMAKE_SOURCE_DIR}/Externals/MoltenVK/libvulkan.dylib" PROPERTIES MACOSX_PACKAGE_LOCATION Frameworks)
+ 
+-  # Update library references to make the bundle portable
+-  include(DolphinPostprocessBundle)
+-  dolphin_postprocess_bundle(dolphin-emu)
+-  # Fix rpath
+-  add_custom_command(TARGET dolphin-emu
+-    POST_BUILD COMMAND
+-    ${CMAKE_INSTALL_NAME_TOOL} -add_rpath "@executable_path/../Frameworks/"
+-    $<TARGET_FILE:dolphin-emu>)
++  install(DIRECTORY ${BUNDLE_PATH} DESTINATION Applications USE_SOURCE_PERMISSIONS)
+ else()
+   install(TARGETS dolphin-emu RUNTIME DESTINATION ${bindir})
+ endif()
