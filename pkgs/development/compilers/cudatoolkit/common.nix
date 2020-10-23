@@ -1,7 +1,7 @@
 args@
 { version
+, driverVersion
 , sha256
-, url ? ""
 , name ? ""
 , developerProgram ? false
 , runPatches ? []
@@ -28,6 +28,15 @@ args@
 , zlib
 }:
 
+let
+  majmin = lib.versions.majorMinor version;
+  suf = lib.optionalString stdenv.hostPlatform.isPower "_ppc64le";
+  filename = "cuda_${version}_${driverVersion}_linux${suf}.run";
+  url = if lib.versionOlder version "11"
+    then "http://developer.download.nvidia.com/compute/cuda/${majmin}/Prod/local_installers/${filename}"
+    else "https://developer.download.nvidia.com/compute/cuda/${version}/local_installers/${filename}";
+in
+
 stdenv.mkDerivation rec {
   pname = "cudatoolkit";
   inherit version runPatches;
@@ -48,7 +57,8 @@ stdenv.mkDerivation rec {
       }
     else
       fetchurl {
-        inherit (args) url sha256;
+        inherit url;
+        inherit (args) sha256;
       };
 
   outputs = [ "out" "lib" "doc" ];
@@ -239,7 +249,7 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "A compiler for NVIDIA GPUs, math libraries, and tools";
     homepage = "https://developer.nvidia.com/cuda-toolkit";
-    platforms = [ "x86_64-linux" ];
+    platforms = [ "x86_64-linux" "powerpc64le-linux" ];
     license = licenses.unfree;
   };
 }

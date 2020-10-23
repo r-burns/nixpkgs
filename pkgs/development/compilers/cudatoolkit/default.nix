@@ -1,4 +1,5 @@
 { lib
+, stdenv
 , callPackage
 , fetchurl
 , gcc7
@@ -10,25 +11,29 @@ let
 in rec {
   cudatoolkit_10_0 = common {
     version = "10.0.130";
-    url = "https://developer.nvidia.com/compute/cuda/10.0/Prod/local_installers/cuda_10.0.130_410.48_linux";
-    sha256 = "16p3bv1lwmyqpxil8r951h385sy9asc578afrc7lssa68c71ydcj";
-
+    driverVersion = "410.48";
+    sha256 = {
+      x86_64-linux = "16p3bv1lwmyqpxil8r951h385sy9asc578afrc7lssa68c71ydcj";
+    }.${stdenv.hostPlatform.system};
     gcc = gcc7;
   };
 
   cudatoolkit_10_1 = common {
     version = "10.1.243";
-    url = "https://developer.download.nvidia.com/compute/cuda/10.1/Prod/local_installers/cuda_10.1.243_418.87.00_linux.run";
-    sha256 = "0caxhlv2bdq863dfp6wj7nad66ml81vasq2ayf11psvq2b12vhp7";
-
+    driverVersion = "418.87.00";
+    sha256 = {
+      x86_64-linux = "0caxhlv2bdq863dfp6wj7nad66ml81vasq2ayf11psvq2b12vhp7";
+    }.${stdenv.hostPlatform.system};
     gcc = gcc7;
   };
 
   cudatoolkit_10_2 = common {
     version = "10.2.89";
-    url = "http://developer.download.nvidia.com/compute/cuda/10.2/Prod/local_installers/cuda_10.2.89_440.33.01_linux.run";
-    sha256 = "04fasl9sjkb1jvchvqgaqxprnprcz7a8r52249zp2ijarzyhf3an";
-
+    driverVersion = "440.33.01";
+    sha256 = {
+      x86_64-linux = "04fasl9sjkb1jvchvqgaqxprnprcz7a8r52249zp2ijarzyhf3an";
+      powerpc64le-linux = "06f61wf0nwbnxfds9wm983r2syjxlwbagw0lhwnvs44brd7pf9sj";
+    }.${stdenv.hostPlatform.system};
     gcc = gcc7;
   };
 
@@ -36,23 +41,31 @@ in rec {
 
   cudatoolkit_11_0 = common {
     version = "11.0.3";
-    url = "https://developer.download.nvidia.com/compute/cuda/11.0.3/local_installers/cuda_11.0.3_450.51.06_linux.run";
-    sha256 = "1h4c69nfrgm09jzv8xjnjcvpq8n4gnlii17v3wzqry5d13jc8ydh";
-
+    driverVersion = "450.51.06";
+    sha256 = {
+      x86_64-linux = "1h4c69nfrgm09jzv8xjnjcvpq8n4gnlii17v3wzqry5d13jc8ydh";
+      powerpc64le-linux = "15075qnh8386rllgxh7l162h0p074jili6zzmwxl7c84y0fv4xa7";
+    }.${stdenv.hostPlatform.system};
     gcc = gcc9;
   };
 
   cudatoolkit_11_1 = common {
     version = "11.1.1";
-    url = "https://developer.download.nvidia.com/compute/cuda/11.1.1/local_installers/cuda_11.1.1_455.32.00_linux.run";
-    sha256 = "13yxv2fgvdnqqbwh1zb80x4xhyfkbajfkwyfpdg9493010kngbiy";
+    driverVersion = "455.32.00";
+    sha256 = {
+      x86_64-linux = "13yxv2fgvdnqqbwh1zb80x4xhyfkbajfkwyfpdg9493010kngbiy";
+      powerpc64le-linux = "sha256-Aj5XH+Ju6CnJgTjfwwWpInmFSqx9GE0lX9WMBsavPBc=";
+    }.${stdenv.hostPlatform.system};
     gcc = gcc9;
   };
 
   cudatoolkit_11_2 = common {
     version = "11.2.1";
-    url = "https://developer.download.nvidia.com/compute/cuda/11.2.1/local_installers/cuda_11.2.1_460.32.03_linux.run";
-    sha256 = "sha256-HamMuJfMX1inRFpKZspPaSaGdwbLOvWKZpzc2Nw9F8g=";
+    driverVersion = "460.32.03";
+    sha256 = {
+      x86_64-linux = "sha256-HamMuJfMX1inRFpKZspPaSaGdwbLOvWKZpzc2Nw9F8g=";
+      powerpc64le-linux = "sha256-s+i2zXaHLes6zQUNMuGXvBxlXhQrFpBw8Pl1NoBGGj8=";
+    }.${stdenv.hostPlatform.system};
     gcc = gcc9;
   };
 
