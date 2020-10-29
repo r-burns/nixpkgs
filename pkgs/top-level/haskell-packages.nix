@@ -45,7 +45,11 @@ let
 in {
   lib = haskellLib;
 
-  compiler = {
+  compiler = let
+    supports = pkg: builtins.any (x: x == stdenv.system) pkg.meta.platforms;
+  in {
+
+    ghc884DebBinary = callPackage ../development/compilers/ghc/8.8.4-debian-binary.nix { };
 
     ghc822Binary = callPackage ../development/compilers/ghc/8.2.2-binary.nix { };
 
@@ -73,17 +77,23 @@ in {
       llvmPackages = pkgs.llvmPackages_7;
     };
     ghc883 = callPackage ../development/compilers/ghc/8.8.3.nix {
-      bootPkgs = packages.ghc865Binary;
+      bootPkgs =
+        if supports compiler.ghc865Binary    then packages.ghc865Binary    else
+        if supports compiler.ghc884DebBinary then packages.ghc884DebBinary else
+        throw "No supported GHC binary available";
+
       inherit (buildPackages.python3Packages) sphinx;
       buildLlvmPackages = buildPackages.llvmPackages_7;
       llvmPackages = pkgs.llvmPackages_7;
     };
     ghc884 = callPackage ../development/compilers/ghc/8.8.4.nix {
       # aarch64 ghc865Binary gets SEGVs due to haskell#15449 or similar
-      bootPkgs = if stdenv.isAarch64 then
-          packages.ghc8102BinaryMinimal
-        else
-          packages.ghc865Binary;
+      bootPkgs =
+        if supports compiler.ghc865Binary         then packages.ghc865Binary         else
+        if supports compiler.ghc8102BinaryMinimal then packages.ghc8102BinaryMinimal else
+        if supports compiler.ghc884DebBinary      then packages.ghc884DebBinary      else
+        throw "No supported GHC binary available";
+
       inherit (buildPackages.python3Packages) sphinx;
       buildLlvmPackages = buildPackages.llvmPackages_7;
       llvmPackages = pkgs.llvmPackages_7;
@@ -96,20 +106,24 @@ in {
     };
     ghc8102 = callPackage ../development/compilers/ghc/8.10.2.nix {
       # aarch64 ghc865Binary gets SEGVs due to haskell#15449 or similar
-      bootPkgs = if stdenv.isAarch64 || stdenv.isAarch32 then
-          packages.ghc8102BinaryMinimal
-        else
-          packages.ghc865Binary;
+      bootPkgs =
+        if supports compiler.ghc865Binary         then packages.ghc865Binary         else
+        if supports compiler.ghc8102BinaryMinimal then packages.ghc8102BinaryMinimal else
+        if supports compiler.ghc884DebBinary      then packages.ghc884DebBinary      else
+        throw "No supported GHC binary available";
+
       inherit (buildPackages.python3Packages) sphinx;
       buildLlvmPackages = buildPackages.llvmPackages_9;
       llvmPackages = pkgs.llvmPackages_9;
     };
     ghc8103 = callPackage ../development/compilers/ghc/8.10.3.nix {
       # aarch64 ghc865Binary gets SEGVs due to haskell#15449 or similar
-      bootPkgs = if stdenv.isAarch64 || stdenv.isAarch32 then
-          packages.ghc8102BinaryMinimal
-        else
-          packages.ghc865Binary;
+      bootPkgs =
+        if supports compiler.ghc865Binary         then packages.ghc865Binary         else
+        if supports compiler.ghc8102BinaryMinimal then packages.ghc8102BinaryMinimal else
+        if supports compiler.ghc884DebBinary      then packages.ghc884DebBinary      else
+        throw "No supported GHC binary available";
+
       inherit (buildPackages.python3Packages) sphinx;
       buildLlvmPackages = buildPackages.llvmPackages_9;
       llvmPackages = pkgs.llvmPackages_9;
@@ -161,6 +175,15 @@ in {
 
   # Always get compilers from `buildPackages`
   packages = let bh = buildPackages.haskell; in {
+
+    # Patched Debian-packaged binaries - supports more architectures
+    # than upstream GHC releases, but is inherently buggier
+    ghc884DebBinary = callPackage ../development/haskell-modules {
+      buildHaskellPackages = bh.packages.ghc884DebBinary;
+      ghc = bh.compiler.ghc884DebBinary;
+      compilerConfig = callPackage ../development/haskell-modules/configuration-ghc-8.8.x.nix { };
+      packageSetConfig = bootstrapPackageSet;
+    };
 
     ghc822Binary = callPackage ../development/haskell-modules {
       buildHaskellPackages = bh.packages.ghc822Binary;
