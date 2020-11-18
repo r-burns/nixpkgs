@@ -62,6 +62,10 @@ stdenv.mkDerivation rec {
     })
   ];
 
+  postPatch = ''
+    substituteInPlace test/test-bz106632.c --replace "/tmp" "$TMPDIR"
+  '';
+
   outputs = [ "bin" "dev" "lib" "out" ]; # $out contains all the config
 
   nativeBuildInputs = [
