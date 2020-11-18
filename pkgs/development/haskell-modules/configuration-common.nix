@@ -1993,4 +1993,6 @@ EOT
       };
     };
 
+  swagger2 = (if pkgs.stdenv.buildPlatform.isPower then dontCheck else pkgs.lib.id) super.swagger2;
+
 } // import ./configuration-tensorflow.nix {inherit pkgs haskellLib;} self super
