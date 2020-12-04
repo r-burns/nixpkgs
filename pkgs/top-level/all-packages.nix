@@ -28746,4 +28746,6 @@ in
   psftools = callPackage ../os-specific/linux/psftools {};
 
   lc3tools = callPackage ../development/tools/lc3tools {};
+
+  slippi-dolphin = callPackage ../misc/emulators/dolphin-emu/slippi.nix {};
 }
