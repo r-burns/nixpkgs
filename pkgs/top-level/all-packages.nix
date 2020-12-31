@@ -25283,7 +25283,8 @@ in
   neovim-unwrapped = callPackage ../applications/editors/neovim {
     lua =
       # neovim doesn't work with luajit on aarch64: https://github.com/neovim/neovim/issues/7879
-      if stdenv.isAarch64 then lua5_1 else
+      # luajit doesn't work on ppc64: https://github.com/LuaJIT/LuaJIT/issues/42
+      if (with stdenv.hostPlatform; isAarch64 || (isPower && is64bit)) then lua5_1 else
       luajit;
   };
 
