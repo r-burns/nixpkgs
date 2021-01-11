@@ -419,6 +419,7 @@ let
       MODULE_SIG            = no; # r13y, generates a random key during build and bakes it in
       # Depends on MODULE_SIG and only really helps when you sign your modules
       # and enforce signatures which we don't do by default.
+    } // optionalAttrs (versionAtLeast version "5.4") {
       SECURITY_LOCKDOWN_LSM = no;
     } // optionalAttrs (!stdenv.hostPlatform.isAarch32) {
 
