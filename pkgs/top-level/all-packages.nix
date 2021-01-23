@@ -2388,6 +2388,10 @@ in
 
   hid-listen = callPackage ../tools/misc/hid-listen { };
 
+  hipify = callPackage ../development/tools/hipify {
+    inherit (llvmPackages_11) llvm libcxx libcxxClang;
+  };
+
   hocr-tools = with python3Packages; toPythonApplication hocr-tools;
 
   home-manager = callPackage ../tools/package-management/home-manager {};
