@@ -1,0 +1,48 @@
+--- a/nss/nss_module.c
++++ b/nss/nss_module.c
+@@ -189,6 +189,35 @@ module_load (struct nss_module *module)
+       return false;
+ 
+     handle = __libc_dlopen (shlib_name);
++
++    if (handle == NULL)
++      {
++        const char *nss_path = __libc_secure_getenv ("NIX_GLIBC_NSS_PATH");
++        if (!nss_path)
++          nss_path = DEFAULT_NSS_PATH;
++
++        const char *pos = nss_path;
++
++        while (*pos)
++          {
++            const char *end = __strchrnul(pos, ':');
++            if (pos != end)
++              {
++                char shlib_path[1024];
++                size_t shlib_pathlen = (end - pos) + 1 + strlen (shlib_name) + 1;
++                if (shlib_pathlen < sizeof(shlib_path))
++                  {
++                    __stpcpy (__stpcpy (__stpncpy (shlib_path, pos, end - pos), "/"), shlib_name);
++                    handle = __libc_dlopen (shlib_path);
++                    if (handle != NULL)
++                      break;
++                  }
++                if (!*end) break;
++                pos = end + 1;
++              }
++          }
++      }
++
+     free (shlib_name);
+   }
+ 
+--- a/sysdeps/generic/unsecvars.h
++++ b/sysdeps/generic/unsecvars.h
+@@ -27,6 +27,7 @@
+   "LOCPATH\0"								      \
+   "MALLOC_TRACE\0"							      \
+   "NIS_PATH\0"								      \
++  "NIX_GLIBC_NSS_PATH\0"						      \
+   "NLSPATH\0"								      \
+   "RESOLV_HOST_CONF\0"							      \
+   "RES_OPTIONS\0"							      \
