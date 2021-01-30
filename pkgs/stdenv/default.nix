@@ -55,6 +55,7 @@ in
     mipsel-linux = stagesLinux;
     powerpc-linux = /* stagesLinux */ stagesNative;
     powerpc64le-linux = stagesLinux;
+    powerpc64-linux = stagesLinux;
     x86_64-darwin = stagesDarwin;
     x86_64-solaris = stagesNix;
     i686-cygwin = stagesNative;
