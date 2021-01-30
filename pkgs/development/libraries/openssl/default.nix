@@ -57,6 +57,7 @@ let
         x86_64-darwin  = "./Configure darwin64-x86_64-cc";
         x86_64-linux = "./Configure linux-x86_64";
         x86_64-solaris = "./Configure solaris64-x86_64-gcc";
+        powerpc64-linux = "./Configure linux-ppc64";
       }.${stdenv.hostPlatform.system} or (
         if stdenv.hostPlatform == stdenv.buildPlatform
           then "./config"
