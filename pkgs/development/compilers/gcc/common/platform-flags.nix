@@ -11,6 +11,8 @@ in lib.concatLists [
   (lib.optional (p ? float) "--with-float=${p.float}")
   (lib.optional (p ? mode) "--with-mode=${p.mode}")
   (lib.optional
-    (let tp = targetPlatform; in tp.isPower && tp.libc == "glibc" && tp.is64bit && tp.isLittleEndian)
+    (let tp = targetPlatform; in tp.isPower && tp.libc == "glibc" && tp.is64bit)
     "--with-long-double-128")
+  # Musl requires ELFv2 ABI on big-endian PPC64
+  (lib.optional (targetPlatform.system == "powerpc64-linux" && targetPlatform.parsed.abi.name == "musl") "--with-abi=elfv2")
 ]
