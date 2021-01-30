@@ -92,6 +92,7 @@ stdenv.mkDerivation rec {
 
   configureFlags = [ "--enable-grub-mount" ] # dep of os-prober
     ++ optional zfsSupport "--enable-libzfs"
+    ++ optionals stdenv.hostPlatform.isPower [ "--with-platform=ieee1275" ]
     ++ optionals efiSupport [ "--with-platform=efi" "--target=${efiSystemsBuild.${stdenv.hostPlatform.system}.target}" "--program-prefix=" ]
     ++ optionals xenSupport [ "--with-platform=xen" "--target=${efiSystemsBuild.${stdenv.hostPlatform.system}.target}"];
 
@@ -100,7 +101,9 @@ stdenv.mkDerivation rec {
                then "${efiSystemsInstall.${stdenv.hostPlatform.system}.target}-efi"
                else if inPCSystems
                     then "${pcSystems.${stdenv.hostPlatform.system}.target}-pc"
-                    else "";
+                    else if stdenv.hostPlatform.isPower
+                         then "powerpc-ieee1275"
+                         else "";
 
   doCheck = false;
   enableParallelBuilding = true;
