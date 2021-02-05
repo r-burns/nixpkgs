@@ -15635,7 +15635,7 @@ in
   libxmi = callPackage ../development/libraries/libxmi { };
 
   libxml2 = callPackage ../development/libraries/libxml2 {
-    python = python3;
+    python = buildPackages.python3;
   };
 
   libxml2Python = let
