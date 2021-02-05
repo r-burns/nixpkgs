@@ -2877,6 +2877,7 @@ in
 
   asciidoc = callPackage ../tools/typesetting/asciidoc {
     inherit (python3.pkgs) matplotlib numpy aafigure recursivePthLoader;
+    inherit (buildPackages) libxml2 libxslt;
     enableStandardFeatures = false;
   };
 
