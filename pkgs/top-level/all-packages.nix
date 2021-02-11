@@ -24462,7 +24462,7 @@ in
   qemu = callPackage ../applications/virtualization/qemu {
     inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Hypervisor;
     inherit (darwin.stubs) rez setfile;
-    python = python3;
+    python = buildPackages.python3;
   };
 
   qemu-utils = callPackage ../applications/virtualization/qemu/utils.nix {};

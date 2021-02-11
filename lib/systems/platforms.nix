@@ -29,6 +29,22 @@ rec {
         PPC_64K_PAGES n
         PPC_4K_PAGES y
         IPV6 y
+
+        FORCE_PCI y
+        PCI y
+        VIRTIO y
+        VIRTIO_MENU y
+        VIRTIO_PCI y
+        VIRTIO_BALLOON y
+        BLK_DEV_NVME y
+        BLOCK y
+        ATA y
+        HAS_IOMEM y
+        SATA_NV y
+        NO_DMA n
+        HAS_DMA y
+        ATA_BMDMA y
+        ATA_SFF y
       '';
     };
   };
