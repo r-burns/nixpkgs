@@ -53,6 +53,7 @@ let
 
   };
 
+  # Attach a block device drive (may be PCI or SCSI depending on configuration)
   driveCmdline = idx: { file, driveExtraOpts, deviceExtraOpts, ... }:
     let
       drvId = "drive${toString idx}";
@@ -75,7 +76,51 @@ let
     in
       "-drive ${driveOpts} ${device}";
 
-  drivesCmdLine = drives: concatStringsSep " " (imap1 driveCmdline drives);
+  # Attach a 9P VirtFS device
+  fsdevCmdline = idx: { path, mount_tag, fsdevExtraOpts ? {}
+                      , deviceExtraOpts ? {}, ... }:
+    let
+      fsdevId = "fsdev${toString (idx - 1)}";
+      mkKeyValue = generators.mkKeyValueDefault {} "=";
+      mkOpts = opts: concatStringsSep "," (mapAttrsToList mkKeyValue opts);
+      fsdevOpts = mkOpts (fsdevExtraOpts // {
+        id = fsdevId;
+        security_model = "none";
+        inherit path;
+      });
+      deviceOpts = mkOpts (deviceExtraOpts // {
+        fsdev = fsdevId;
+        inherit mount_tag;
+      });
+      device = "-device virtio-9p-pci,${deviceOpts}";
+    in
+      "-fsdev local,${fsdevOpts} ${device}";
+
+  fsdevs = map (x: x // { type = "fsdev"; }) [
+    { mount_tag = "store";  path = "/nix/store"; }
+    { mount_tag = "xchg";   path = "$TMPDIR/xchg"; }
+    { mount_tag = "shared"; path = ''''${SHARED_DIR:-$TMPDIR/xchg}''; }
+  ];
+
+  deviceCmdline = drives:
+    let
+      # Assigns a device to a PCIe bus
+      # May delegate to a file-based block device, or a VirtFS -fsdev device.
+      makeCmdline = idx: { type ? "drive", deviceExtraOpts ? {}, ... } @ attrs:
+        let
+          # Do we need to specify the PCIe ports manually?
+          # (Currently this is only the case for PowerNV)
+          manualPcieLayout = with pkgs.stdenv.hostPlatform; isPower && is64bit;
+          autoAttrs = attrs // lib.optionalAttrs manualPcieLayout {
+            deviceExtraOpts = {
+              bus = "pcie.${toString (idx - 1)}";
+            } // deviceExtraOpts;
+          };
+        in
+          if type == "drive"
+          then driveCmdline idx autoAttrs
+          else fsdevCmdline idx autoAttrs;
+    in concatStringsSep " " (imap1 makeCmdline drives);
 
 
   # Creates a device name from a 1-based a numerical index, e.g.
@@ -155,10 +200,7 @@ let
           -smp ${toString config.virtualisation.cores} \
           -device virtio-rng-pci \
           ${concatStringsSep " " config.virtualisation.qemu.networkingOptions} \
-          -virtfs local,path=/nix/store,security_model=none,mount_tag=store \
-          -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
-          -virtfs local,path=''${SHARED_DIR:-$TMPDIR/xchg},security_model=none,mount_tag=shared \
-          ${drivesCmdLine config.virtualisation.qemu.drives} \
+          ${deviceCmdline (config.virtualisation.qemu.drives ++ fsdevs)} \
           ${toString config.virtualisation.qemu.options} \
           $QEMU_OPTS \
           "$@"
