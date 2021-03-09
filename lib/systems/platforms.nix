@@ -37,6 +37,10 @@ rec {
     };
   };
 
+  powernv_be = lib.recursiveUpdate powernv {
+    linux-kernel.baseConfig = "powernv_be_defconfig";
+  };
+
   ##
   ## ARM
   ##
