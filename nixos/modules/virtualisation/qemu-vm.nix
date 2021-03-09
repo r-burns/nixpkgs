@@ -194,7 +194,7 @@ let
       '')}
 
       # Start QEMU.
-      exec ${qemuBinary qemu} \
+      exec ${qemuBinary { qemuHostPkgs = cfg.qemu.hostPkgs; qemuPkg = qemu; }} \
           -name ${config.system.name} \
           -m ${toString config.virtualisation.memorySize} \
           -smp ${toString config.virtualisation.cores} \

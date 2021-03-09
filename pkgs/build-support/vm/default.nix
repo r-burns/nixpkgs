@@ -198,7 +198,7 @@ rec {
 
 
   qemuCommandLinux = ''
-    ${qemuBinary qemu} \
+    ${qemuBinary { qemuPkg = qemu; }} \
       -nographic -no-reboot \
       -device virtio-rng-pci \
       -virtfs local,path=${storeDir},security_model=none,mount_tag=store \
