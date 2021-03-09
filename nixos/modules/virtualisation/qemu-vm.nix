@@ -151,7 +151,7 @@ let
   # Shell script to start the VM.
   startVM =
     ''
-      #! ${pkgs.runtimeShell}
+      #! ${cfg.qemu.hostPkgs.runtimeShell}
 
       NIX_DISK_IMAGE=$(readlink -f ''${NIX_DISK_IMAGE:-${config.virtualisation.diskImage}})
 
@@ -455,10 +455,20 @@ in
       };
 
     virtualisation.qemu = {
+      hostPkgs =
+        mkOption {
+          default = pkgs.pkgsBuildBuild;
+          description = ''
+            Package set for the QEMU host (as opposed to the guest,
+            which uses the ordinary `pkgs` package set).
+            Defaults to packages for the current build platform.
+          '';
+        };
+
       package =
         mkOption {
           type = types.package;
-          default = pkgs.qemu;
+          default = cfg.qemu.hostPkgs.qemu;
           example = "pkgs.qemu_test";
           description = "QEMU package to use.";
         };
