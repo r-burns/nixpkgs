@@ -17,7 +17,7 @@ rec {
       "-netdev vde,id=vlan${toString nic},sock=$QEMU_VDE_SOCKET_${toString net}"
     ];
 
-  qemuSerialDevice = if pkgs.stdenv.isi686 || pkgs.stdenv.isx86_64 then "ttyS0"
+  qemuSerialDevice = if (with pkgs.stdenv.hostPlatform; isi686 || isx86_64 || isRiscV) then "ttyS0"
         else if (with pkgs.stdenv.hostPlatform; isAarch32 || isAarch64 || isPower) then "ttyAMA0"
         else throw "Unknown QEMU serial device for system '${pkgs.stdenv.hostPlatform.system}'";
 
@@ -43,6 +43,7 @@ rec {
     emulated = {
       powerpc64-linux = "${qemuPkg}/bin/qemu-system-ppc64 -machine powernv";
       powerpc64le-linux = "${qemuPkg}/bin/qemu-system-ppc64 -machine powernv";
+      riscv64-linux = "${qemuPkg}/bin/qemu-system-riscv64 -machine virt";
     }."${qemuGuest.system}" or throwSystem;
 
   in if qemuHost.system == qemuGuest.system then native else emulated;
