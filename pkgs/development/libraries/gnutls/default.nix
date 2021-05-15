@@ -4,6 +4,7 @@
 , guileBindings ? config.gnutls.guile or false, guile
 , tpmSupport ? false, trousers, which, nettools, libunistring
 , withSecurity ? false, Security  # darwin Security.framework
+, datefudge
 }:
 
 assert guileBindings -> guile != null;
@@ -72,7 +73,7 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ perl pkg-config ]
     ++ lib.optionals (isDarwin && !withSecurity) [ autoconf automake ]
-    ++ lib.optionals doCheck [ which nettools util-linux ];
+    ++ lib.optionals doCheck [ datefudge which nettools util-linux ];
 
   propagatedBuildInputs = [ nettle ];
 
