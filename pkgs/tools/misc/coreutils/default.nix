@@ -73,7 +73,16 @@ stdenv.mkDerivation (rec {
       echo "int main() { return 77; }" > gnulib-tests/test-parse-datetime.c
       echo "int main() { return 77; }" > gnulib-tests/test-getlogin.c
     ''
-  ]);
+  ])
+  + ''
+    # These tests fail when running sandboxed as non-root on non-NixOS with SSSD,
+    # because the sandboxed build cannot map the current UID to a username.
+    sed '2i echo Skipping id uid test && exit 77' -i tests/id/uid.sh
+    sed '2i echo Skipping id zero test && exit 77' -i tests/id/zero.sh
+    sed '2i echo Skipping whoami help-version test && exit 77' -i tests/misc/help-version.sh
+    sed '2i echo Skipping chown separator test && exit 77' -i tests/chown/separator.sh
+  ''
+  ;
 
   outputs = [ "out" "info" ];
 
