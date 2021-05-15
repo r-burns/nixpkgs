@@ -116,6 +116,7 @@ stdenv.mkDerivation rec {
 
   configureFlags = [
     "--enable-grub-mount" # dep of os-prober
+    "BUILD_CC=${pkgsBuildBuild.stdenv.cc}/bin/cc"
   ] ++ optionals (stdenv.hostPlatform != stdenv.buildPlatform) [
     # grub doesn't do cross-compilation as usual and tries to use unprefixed
     # tools to target the host. Provide toolchain information explicitly for
@@ -128,6 +129,7 @@ stdenv.mkDerivation rec {
     "TARGET_RANLIB=${stdenv.cc.targetPrefix}ranlib"
     "TARGET_STRIP=${stdenv.cc.targetPrefix}strip"
   ] ++ optional zfsSupport "--enable-libzfs"
+    ++ optionals stdenv.hostPlatform.isPower [ "--with-platform=ieee1275" ]
     ++ optionals efiSupport [ "--with-platform=efi" "--target=${efiSystemsBuild.${stdenv.hostPlatform.system}.target}" "--program-prefix=" ]
     ++ optionals xenSupport [ "--with-platform=xen" "--target=${efiSystemsBuild.${stdenv.hostPlatform.system}.target}"];
 
@@ -136,7 +138,9 @@ stdenv.mkDerivation rec {
                then "${efiSystemsInstall.${stdenv.hostPlatform.system}.target}-efi"
                else if inPCSystems
                     then "${pcSystems.${stdenv.hostPlatform.system}.target}-pc"
-                    else "";
+                    else if stdenv.hostPlatform.isPower
+                         then "powerpc-ieee1275"
+                         else "";
 
   doCheck = false;
   enableParallelBuilding = true;
