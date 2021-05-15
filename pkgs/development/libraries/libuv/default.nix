@@ -13,6 +13,7 @@ stdenv.mkDerivation rec {
 
   postPatch = let
     toDisable = [
+      "platform_output"
       "getnameinfo_basic" "udp_send_hang_loop" # probably network-dependent
       "tcp_connect_timeout" # tries to reach out to 8.8.8.8
       "spawn_setuid_fails" "spawn_setgid_fails" "fs_chown" # user namespaces
