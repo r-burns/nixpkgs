@@ -9827,6 +9827,8 @@ with pkgs;
 
   slides = callPackage ../applications/misc/slides { };
 
+  slippi-dolphin = callPackage ../applications/emulators/dolphin-emu/slippi.nix { };
+
   slirp4netns = callPackage ../tools/networking/slirp4netns { };
 
   slowlorust = callPackage ../tools/networking/slowlorust { };
