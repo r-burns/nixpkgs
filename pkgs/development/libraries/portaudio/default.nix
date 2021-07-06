@@ -14,7 +14,7 @@ stdenv.mkDerivation rec {
   version =  "190700_20210406";
 
   src = fetchurl {
-    url = "http://files.portaudio.com/archives/pa_stable_v${version}.tgz";
+    url = "http://files.portaudio.com/archives/pa_stable_v190700_20210406.tgz";
     sha256 = "1vrdrd42jsnffh6rq8ap2c6fr4g9fcld89z649fs06bwqx1bzvs7";
   };
 
