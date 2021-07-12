@@ -37,7 +37,7 @@ buildPythonPackage rec {
     owner = "sphinx-doc";
     repo = pname;
     rev = "v${version}";
-    sha256 = "sha256-0QdgHFX4r40BDHjpi9R40lXqT4n5ZgrIny+w070LZPE=";
+    sha256 = "0qqwi3z5bm3g3xp6r3s46nm4mzh7mw27d4k80akjj2ywhafnnkfs";
   };
 
   patches = [
