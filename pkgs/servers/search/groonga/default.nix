@@ -2,6 +2,7 @@
 , suggestSupport ? false, zeromq, libevent, msgpack
 , lz4Support  ? false, lz4
 , zlibSupport ? false, zlib
+, autoconf, automake
 }:
 
 stdenv.mkDerivation rec {
@@ -14,8 +15,13 @@ stdenv.mkDerivation rec {
     sha256 = "sha256-oBABhMKLezjPeHkWfqesy+ze+CPnWfmS17vCKC7fWEU=";
   };
 
+  preConfigure = ''
+    rm version
+    aclocal
+  '';
+
   buildInputs = with lib;
-     [ pkg-config mecab kytea libedit ]
+     [ autoconf automake pkg-config mecab kytea libedit ]
     ++ optional lz4Support lz4
     ++ optional zlibSupport zlib
     ++ optionals suggestSupport [ zeromq libevent msgpack ];
