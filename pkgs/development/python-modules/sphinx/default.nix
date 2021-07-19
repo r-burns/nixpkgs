@@ -1,4 +1,5 @@
-{ lib
+{ stdenv
+, lib
 , buildPythonPackage
 , pythonOlder
 , fetchFromGitHub
@@ -83,6 +84,9 @@ buildPythonPackage rec {
     "test_defaults"
     "test_defaults_json"
     "test_latex_images"
+  ] ++ lib.optional stdenv.isDarwin [
+    # Due to lack of network sandboxing can't guarantee port 7777 isn't bound
+    "test_inspect_main_url"
   ];
 
   meta = with lib; {
