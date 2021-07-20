@@ -21,10 +21,12 @@ stdenv.mkDerivation rec {
   '';
 
   buildInputs = with lib;
-     [ autoconf automake pkg-config mecab kytea libedit ]
+     [ mecab kytea libedit ]
     ++ optional lz4Support lz4
     ++ optional zlibSupport zlib
     ++ optionals suggestSupport [ zeromq libevent msgpack ];
+
+  nativeBuildInputs = [ autoconf automake pkg-config ];
 
   configureFlags = with lib;
        optional zlibSupport "--with-zlib"
