@@ -14,7 +14,7 @@ buildPythonPackage rec {
     owner = "pypa";
     repo = pname;
     rev = version;
-    sha256 = "sha256-8lK2UvqBIxUYm6IOuT+Jk71wYbEEjvI7typS3749N9g=";
+    sha256 = "1d3ah9nba7jmmld7qkn1zqlnizg5xzqshbblrbyzmyw9zick7vmk";
     name = "${pname}-${version}-source";
   };
 
