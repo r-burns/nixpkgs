@@ -5,9 +5,9 @@
 , llvmPackages, libffi, libomxil-bellagio, libva-minimal
 , libelf, libvdpau
 , libglvnd, libunwind
-, galliumDrivers ? ["auto"]
-, driDrivers ? ["auto"]
-, vulkanDrivers ? ["auto"]
+, galliumDrivers ? if stdenv.hostPlatform.isPower then ["nouveau" "swrast"] else ["auto"]
+, driDrivers ? if stdenv.hostPlatform.isPower then ["nouveau"] else ["auto"]
+, vulkanDrivers ? if stdenv.hostPlatform.isPower then [] else ["auto"]
 , eglPlatforms ? [ "x11" ] ++ lib.optionals stdenv.isLinux [ "wayland" ]
 , OpenGL, Xplugin
 , withValgrind ? !stdenv.isDarwin && lib.meta.availableOn stdenv.hostPlatform valgrind-light, valgrind-light
