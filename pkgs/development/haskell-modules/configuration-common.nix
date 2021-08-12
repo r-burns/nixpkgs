@@ -1748,6 +1748,8 @@ self: super: {
   # https://github.com/merijn/paramtree/issues/4
   paramtree = dontCheck super.paramtree;
 
+  swagger2 = (if pkgs.stdenv.buildPlatform.isPower then dontCheck else pkgs.lib.id) super.swagger2;
+
   # Too strict version bounds on haskell-gi
   # https://github.com/owickstrom/gi-gtk-declarative/issues/100
   gi-gtk-declarative = doJailbreak super.gi-gtk-declarative;
