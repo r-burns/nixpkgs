@@ -46,9 +46,19 @@ let
 in {
   lib = haskellLib;
 
-  package-list = callPackage ../development/haskell-modules/package-list.nix {};
+  compiler = let
+    supports = pkg: builtins.any (x: x == stdenv.system) pkg.meta.platforms;
+  in {
 
-  compiler = {
+    ghc884DebBinary = callPackage ../development/compilers/ghc/8.8.4-debian-binary.nix {
+      libffi = pkgs.libffi.overrideAttrs (old: rec {
+        version = "3.3";
+        src = pkgs.fetchurl {
+          url = "https://sourceware.org/pub/libffi/libffi-${version}.tar.gz";
+          sha256 = "0mi0cpf8aa40ljjmzxb7im6dbj45bb0kllcd09xgmp834y9agyvj";
+        };
+      });
+    };
 
     ghc865Binary = callPackage ../development/compilers/ghc/8.6.5-binary.nix { };
 
@@ -78,6 +88,8 @@ in {
         # Musl bindists do not exist for ghc 8.6.5, so we use 8.10.* for them
         else if stdenv.isAarch64 || stdenv.targetPlatform.isMusl then
           packages.ghc8102BinaryMinimal
+        else if stdenv.isPower64 then
+          packages.ghc884DebBinary
         else
           packages.ghc865Binary;
       inherit (buildPackages.python3Packages) sphinx;
@@ -92,6 +104,8 @@ in {
         # Musl bindists do not exist for ghc 8.6.5, so we use 8.10.* for them
         else if stdenv.isAarch64 || stdenv.isAarch32 || stdenv.targetPlatform.isMusl then
           packages.ghc8102BinaryMinimal
+        else if stdenv.isPower64 then
+          packages.ghc884DebBinary
         else
           packages.ghc865Binary;
       inherit (buildPackages.python3Packages) sphinx;
@@ -174,6 +188,15 @@ in {
 
   # Always get compilers from `buildPackages`
   packages = let bh = buildPackages.haskell; in {
+
+    # Patched Debian-packaged binaries - supports more architectures
+    # than upstream GHC releases, but is inherently buggier
+    ghc884DebBinary = callPackage ../development/haskell-modules {
+      buildHaskellPackages = bh.packages.ghc884DebBinary;
+      ghc = bh.compiler.ghc884DebBinary;
+      compilerConfig = callPackage ../development/haskell-modules/configuration-ghc-8.8.x.nix { };
+      packageSetConfig = bootstrapPackageSet;
+    };
 
     ghc865Binary = callPackage ../development/haskell-modules {
       buildHaskellPackages = bh.packages.ghc865Binary;
