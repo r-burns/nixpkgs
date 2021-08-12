@@ -40,6 +40,8 @@ stdenv.mkDerivation rec {
   ];
 
   postPatch = ''
+    substituteInPlace test/test-bz106632.c --replace "/tmp" "$TMPDIR"
+
     # Requires networking.
     sed -i '/check_PROGRAMS += test-crbug1004254/d' test/Makefile.am
   '';
