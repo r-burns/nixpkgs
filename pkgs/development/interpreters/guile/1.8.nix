@@ -4,10 +4,12 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "guile-1.8.8";
+  pname = "guile";
+  version = "1.8.8";
+  versionMajMin = lib.versions.majorMinor version;
 
   src = fetchurl {
-    url = "mirror://gnu/guile/${name}.tar.gz";
+    url = "mirror://gnu/guile/guile-${version}.tar.gz";
     sha256 = "0l200a0v7h8bh0cwz6v7hc13ds39cgqsmfrks55b1rbj5vniyiy3";
   };
 

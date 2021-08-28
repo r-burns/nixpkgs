@@ -11,11 +11,12 @@
  else stdenv.mkDerivation)
 
 (rec {
-  name = "guile-${version}";
+  pname = "guile";
   version = "2.2.7";
+  versionMajMin = lib.versions.majorMinor version;
 
   src = fetchurl {
-    url = "mirror://gnu/guile/${name}.tar.xz";
+    url = "mirror://gnu/guile/guile-${version}.tar.xz";
     sha256 = "013mydzhfswqci6xmyc1ajzd59pfbdak15i0b090nhr9bzm7dxyd";
   };
 
@@ -96,7 +97,7 @@
   doCheck = false;
   doInstallCheck = doCheck;
 
-  setupHook = ./setup-hook-2.2.sh;
+  setupHook = ./setup-hook.sh;
 
   meta = {
     description = "Embeddable Scheme implementation";
