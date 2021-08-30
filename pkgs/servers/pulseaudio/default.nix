@@ -100,11 +100,6 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  # not sure what the best practices are here -- can't seem to find a way
-  # for the compiler to bring in stdlib and stdio (etc.) properly
-  # the alternative is to copy the files from /usr/include to src, but there are
-  # probably a large number of files that would need to be copied (I stopped
-  # after the seventh)
   NIX_CFLAGS_COMPILE = lib.optionalString stdenv.isDarwin "-I${Libc}";
 
   installFlags =
