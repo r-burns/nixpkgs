@@ -4,9 +4,8 @@
 }:
 
 let
-  version = "0.9";
-  tag = "v${version}";
-  rev = "15773561e40ca5c8cffe0a618c544b6cfdc5ad7e";
+  version = "unstable-20210830";
+  rev = "db097f7849366ac560f6c4de4d1c7d0e7e768ab5";
 in
 
 stdenv.mkDerivation rec {
@@ -17,13 +16,13 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     owner = "thepowersgang";
     repo = "mrustc";
-    rev = tag;
-    sha256 = "194ny7vsks5ygiw7d8yxjmp1qwigd71ilchis6xjl6bb2sj97rd2";
+    inherit rev;
+    sha256 = "0yw1mlngf2m27f0zmqyn9y9fdv1y2jly0mdwnkh479sf2y8l8jbw";
   };
 
   postPatch = ''
     sed -i 's/\$(shell git show --pretty=%H -s)/${rev}/' Makefile
-    sed -i 's/\$(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)/${tag}/' Makefile
+    sed -i 's/\$(shell git symbolic-ref -q --short HEAD || git describe --tags --exact-match)/${rev}/' Makefile
     sed -i 's/\$(shell git diff-index --quiet HEAD; echo $$?)/0/' Makefile
   '';
 

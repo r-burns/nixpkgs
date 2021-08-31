@@ -1,5 +1,6 @@
 { lib, stdenv
 , fetchurl
+, fetchpatch
 , mrustc
 , mrustc-minicargo
 , rust
@@ -39,8 +40,13 @@ stdenv.mkDerivation rec {
   patches = [
     ./patches/0001-use-shared-llvm.patch
     ./patches/0002-dont-build-llvm.patch
-    ./patches/0003-echo-newlines.patch
-    ./patches/0004-increase-parallelism.patch
+    # Revert changes for rustc 1.39.0 support which inadvertently broke rustc 1.29.0 support
+    (fetchpatch {
+      url = "https://github.com/thepowersgang/mrustc/commit/b9b23c5184940123087167960d7cb75a38760003.patch";
+      revert = true;
+      includes = [ "run_rustc/Makefile" ];
+      sha256 = "0zq37f7kzkqd5d6sbjkpqnd26p2pkfkslyj3gfz0d3znw19mwllc";
+    })
   ];
 
   postPatch = ''
@@ -80,6 +86,8 @@ stdenv.mkDerivation rec {
     "MINICARGO=${mrustc-minicargo}/bin/minicargo"
     "LLVM_CONFIG=${llvm_7.dev}/bin/llvm-config"
     "RUSTC_TARGET=${rust.toRustTarget stdenv.targetPlatform}"
+    "RUSTC_VERSION=${rustcVersion}"
+    "OUTDIR=output/"
   ];
 
   buildPhase = ''
