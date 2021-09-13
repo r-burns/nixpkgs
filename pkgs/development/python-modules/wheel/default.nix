@@ -14,8 +14,14 @@ buildPythonPackage rec {
     owner = "pypa";
     repo = pname;
     rev = version;
-    sha256 = "1d3ah9nba7jmmld7qkn1zqlnizg5xzqshbblrbyzmyw9zick7vmk";
+    sha256 = "13bj49psan1s1fxfrq613dm2l7jvrg2dpgb36lz81z3b1h7zig6j";
     name = "${pname}-${version}-source";
+    extraPostFetch = ''
+      cd $out
+      mv tests/testdata/unicode.dist/unicodedist/åäö_日本語.py \
+        tests/testdata/unicode.dist/unicodedist/æɐø_日本價.py
+      patch -p1 < ${./0001-tests-Rename-a-a-o-_-.py-_-.py.patch}
+    '';
   };
 
   nativeBuildInputs = [
