@@ -53,7 +53,7 @@ let
     '';
   };
 
-  withLuaJIT = !(stdenv.hostPlatform.isPower && stdenv.hostPlatform.is64bit);
+  withLuaJIT = !stdenv.hostPlatform.isPower64;
 in rec { # un-indented
 
 inherit (common) cleanBrokenLinks;
