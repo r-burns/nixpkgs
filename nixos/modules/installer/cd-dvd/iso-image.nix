@@ -469,6 +469,9 @@ let
   # Syslinux (and isolinux) only supports x86-based architectures.
   canx86BiosBoot = pkgs.stdenv.isi686 || pkgs.stdenv.isx86_64;
 
+  # Systems which are able to build EFI partitions
+  canBuildEfi = with pkgs.stdenv.hostPlatform; isx86 || isAarch32 || isAarch64;
+
 in
 
 {
@@ -685,7 +688,8 @@ in
     # here and it causes a cyclic dependency.
     boot.loader.grub.enable = false;
 
-    environment.systemPackages =  [ grubPkgs.grub2 grubPkgs.grub2_efi ]
+    environment.systemPackages =  [ grubPkgs.grub2 ]
+      ++ optional canBuildEfi grubPkgs.grub2_efi
       ++ optional canx86BiosBoot pkgs.syslinux
     ;
 
