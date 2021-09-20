@@ -38,7 +38,13 @@ buildPythonPackage rec {
     owner = "sphinx-doc";
     repo = pname;
     rev = "v${version}";
-    sha256 = "0qqwi3z5bm3g3xp6r3s46nm4mzh7mw27d4k80akjj2ywhafnnkfs";
+    sha256 = "1bl0k326h32dag41axbsjq1d9w59rm11naj6bfirg116nqw56mk6";
+    extraPostFetch = ''
+      cd $out
+      mv tests/roots/test-images/testimäge.png \
+        tests/roots/test-images/testimæge.png
+      patch -p1 < ${./0001-test-images-Use-normalization-equivalent-character.patch}
+    '';
   };
 
   patches = [
