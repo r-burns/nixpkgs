@@ -1,5 +1,5 @@
 { lib, stdenv, fetchurl, fetchpatch, pkg-config, musl-fts
-, musl-obstack, m4, zlib, bzip2, bison, flex, gettext, xz, setupDebugInfoDirs
+, musl-obstack, m4, zlib, zstd, bzip2, bison, flex, gettext, xz, setupDebugInfoDirs
 , argp-standalone
 , enableDebuginfod ? false, sqlite, curl, libmicrohttpd_0_9_70, libarchive
 }:
@@ -39,15 +39,17 @@ stdenv.mkDerivation rec {
     })
   ] ++ lib.optionals stdenv.hostPlatform.isMusl [ ./musl-error_h.patch ];
 
-  outputs = [ "bin" "dev" "out" "man" ];
+  postPatch = ''
+    patchShebangs tests/*.sh
+  '';
 
-  hardeningDisable = [ "format" ];
+  outputs = [ "bin" "dev" "out" "man" ];
 
   # We need bzip2 in NativeInputs because otherwise we can't unpack the src,
   # as the host-bzip2 will be in the path.
   nativeBuildInputs = [ m4 bison flex gettext bzip2 ]
     ++ lib.optional enableDebuginfod pkg-config;
-  buildInputs = [ zlib bzip2 xz ]
+  buildInputs = [ zlib zstd bzip2 xz ]
     ++ lib.optionals stdenv.hostPlatform.isMusl [
     argp-standalone
     musl-fts
@@ -74,8 +76,11 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  doCheck = false; # fails 3 out of 174 tests
-  doInstallCheck = false; # fails 70 out of 174 tests
+  # Backtrace unwinding tests rely on glibc-internal symbol names.
+  # Musl provides slightly different forms and fails.
+  # Let's disable tests there until musl support is fully upstreamed.
+  doCheck = !stdenv.hostPlatform.isMusl;
+  doInstallCheck = !stdenv.hostPlatform.isMusl;
 
   meta = with lib; {
     homepage = "https://sourceware.org/elfutils/";
