@@ -1,4 +1,11 @@
-{ lib, stdenv, fetchgit, cmake, elfutils, zlib }:
+{ lib, stdenv
+, fetchgit
+, argp-standalone
+, cmake
+, elfutils
+, musl-obstack
+, zlib
+}:
 
 stdenv.mkDerivation rec {
   pname = "pahole";
@@ -11,7 +18,13 @@ stdenv.mkDerivation rec {
   };
 
   nativeBuildInputs = [ cmake ];
-  buildInputs = [ elfutils zlib ];
+  buildInputs = [
+    elfutils
+    zlib
+  ] ++ lib.optionals stdenv.hostPlatform.isMusl [
+    argp-standalone
+    musl-obstack
+  ];
 
   # Put libraries in "lib" subdirectory, not top level of $out
   cmakeFlags = [ "-D__LIB=lib" ];
