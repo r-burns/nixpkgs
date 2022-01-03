@@ -4,8 +4,8 @@
 }:
 
 let
-  version = "unstable-20210830";
-  rev = "db097f7849366ac560f6c4de4d1c7d0e7e768ab5";
+  version = "unstable-20220102";
+  rev = "9a8773841dca482eff923ba4e5413ca1eba0f9b3";
 in
 
 stdenv.mkDerivation rec {
@@ -14,10 +14,10 @@ stdenv.mkDerivation rec {
 
   # Always update minicargo.nix and bootstrap.nix in lockstep with this
   src = fetchFromGitHub {
-    owner = "thepowersgang";
+    owner = "r-burns";
     repo = "mrustc";
     inherit rev;
-    sha256 = "0yw1mlngf2m27f0zmqyn9y9fdv1y2jly0mdwnkh479sf2y8l8jbw";
+    sha256 = "sha256-N8n5HtjECd++g1rWhvB5Mx+kG3s2GOtg+s/7tXUvg4k=";
   };
 
   postPatch = ''
