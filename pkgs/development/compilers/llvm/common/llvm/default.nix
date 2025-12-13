@@ -382,7 +382,7 @@ stdenv.mkDerivation (
       +
         # Seems to require certain floating point hardware (NEON?)
         optionalString (stdenv.hostPlatform.system == "armv6l-linux") ''
-          rm test/ExecutionEngine/frem.ll
+          rm test/ExecutionEngine/${lib.optionalString (lib.versionAtLeast release_version "20.1") "MCJIT/"}frem.ll
         ''
       +
         # 1. TODO: Why does this test fail on FreeBSD?
