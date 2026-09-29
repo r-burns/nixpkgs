@@ -15,10 +15,7 @@ stdenv.mkDerivation rec {
   pname = "patchelf";
   version = "0.19.1";
 
-  src = fetchurl {
-    url = "https://github.com/NixOS/${pname}/releases/download/${version}/${pname}-${version}.tar.bz2";
-    sha256 = "sha256-LM4B3pNlOCn2q2iiDC7CdeHACpRhEHBKJ+ko0ubohxY=";
-  };
+  src = ./patchelf-0.19.1.tar.bz2;
 
   strictDeps = true;
 
