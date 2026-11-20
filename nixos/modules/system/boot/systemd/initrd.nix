@@ -193,9 +193,6 @@ in
         );
     in
     [
-      (lib.mkRemovedOptionModule [ "boot" "initrd" "systemd" "enable" ] ''
-        Scripted initrd has been removed.
-      '')
       (lib.mkRemovedOptionModule [ "boot" "initrd" "systemd" "strip" ] ''
         The option to strip ELF files in initrd has been removed.
         It only saved ~1MiB of initramfs size, but caused a few issues
@@ -235,6 +232,17 @@ in
     '');
 
   options.boot.initrd.systemd = {
+
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      readOnly = true;
+      description = ''
+        Whether to enable systemd in initrd. (Note that this option is
+        read-only and always true since NixOS 26.11; it is exposed only for
+        out-of-tree modules which check it for backward compatibility.)
+      '';
+    };
+
     package = lib.mkOption {
       type = lib.types.package;
       default = config.systemd.package;
@@ -534,6 +542,7 @@ in
       ++ lib.optional (config.boot.initrd.systemd.root == "gpt-auto") "rw";
 
     boot.initrd.systemd = {
+      enable = true;
       initrdBin = [
         pkgs.coreutils
         cfg.package
